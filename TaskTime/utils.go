@@ -1,13 +1,22 @@
 package utils
 
 import (
-	"encoding/json"
-	"net/http"
+	"log"
+	"os"
 )
 
-func RespondWithJSON(w http.ResponseWriter, statusCode int, payload interface{}) {
-	response, _ := json.Marshal(payload)
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(statusCode)
-	w.Write(response)
+func LogInfo(message string) {
+	log.SetOutput(os.Stdout)
+	log.Println("[INFO]: " + message)
+}
+
+func LogError(message string) {
+	log.SetOutput(os.Stderr)
+	log.Println("[ERROR]: " + message)
+}
+
+func CheckErr(err error, context string) {
+	if err != nil {
+		LogError(context + ": " + err.Error())
+	}
 }

@@ -1,46 +1,84 @@
 package models
 
 type Task struct {
-	ID     int    `json:"id"`
-	Title  string `json:"title"`
-	Status string `json:"status"`
+	ID          int    `json:"id"`
+	Title       string `json:"title"`
+	Description string `json:"description"`
+}
+
+type TimeLog struct {
+	ID        int    `json:"id"`
+	TaskID    int    `json:"task_id"`
+	Duration  int    `json:"duration"` // Duration in minutes
+	Timestamp string `json:"timestamp"`
 }
 
 var tasks []Task
-var nextID int
+var timeLogs []TimeLog
+var taskIDCounter int
+var timeLogIDCounter int
 
 func init() {
 	tasks = []Task{}
-	nextID = 1
+	timeLogs = []TimeLog{}
+	taskIDCounter = 1
+	timeLogIDCounter = 1
 }
 
 func GetAllTasks() []Task {
 	return tasks
 }
 
-func AddTask(task Task) {
-	task.ID = nextID
-	nextID++
+func CreateTask(task Task) {
+	task.ID = taskIDCounter
+	taskIDCounter++
 	tasks = append(tasks, task)
 }
 
-func UpdateTask(id int, updatedTask Task) *Task {
+func UpdateTask(id int, updatedTask Task) {
 	for i, task := range tasks {
 		if task.ID == id {
-			tasks[i].Title = updatedTask.Title
-			tasks[i].Status = updatedTask.Status
-			return &tasks[i]
+			tasks[i] = updatedTask
+			tasks[i].ID = id
+			break
 		}
 	}
-	return nil
 }
 
-func DeleteTask(id int) bool {
+func DeleteTask(id int) {
 	for i, task := range tasks {
 		if task.ID == id {
 			tasks = append(tasks[:i], tasks[i+1:]...)
-			return true
+			break
 		}
 	}
-	return false
+}
+
+func GetAllTimeLogs() []TimeLog {
+	return timeLogs
+}
+
+func CreateTimeLog(timeLog TimeLog) {
+	timeLog.ID = timeLogIDCounter
+	timeLogIDCounter++
+	timeLogs = append(timeLogs, timeLog)
+}
+
+func UpdateTimeLog(id int, updatedTimeLog TimeLog) {
+	for i, timeLog := range timeLogs {
+		if timeLog.ID == id {
+			timeLogs[i] = updatedTimeLog
+			timeLogs[i].ID = id
+			break
+		}
+	}
+}
+
+func DeleteTimeLog(id int) {
+	for i, timeLog := range timeLogs {
+		if timeLog.ID == id {
+			timeLogs = append(timeLogs[:i], timeLogs[i+1:]...)
+			break
+		}
+	}
 }
