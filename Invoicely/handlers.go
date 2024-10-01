@@ -3,9 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
-
 	"./models"
-	"./db"
 	"./utils"
 )
 
@@ -18,27 +16,76 @@ func CreateInvoice(w http.ResponseWriter, r *http.Request) {
 	var invoice models.Invoice
 	err := json.NewDecoder(r.Body).Decode(&invoice)
 	if err != nil {
-		http.Error(w, "Bad request", http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	err = db.SaveInvoice(invoice)
-	if err != nil {
-		http.Error(w, "Failed to save invoice", http.StatusInternalServerError)
-		return
-	}
-
-	utils.RespondWithJSON(w, http.StatusCreated, invoice)
+	models.AddInvoice(invoice)
+	w.WriteHeader(http.StatusCreated)
 }
 
 func SendInvoice(w http.ResponseWriter, r *http.Request) {
-	// Implementation for sending invoices
+	if r.Method != http.MethodPost {
+		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var req models.SendInvoiceRequest
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	invoice, err := models.GetInvoiceByID(req.InvoiceID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+
+	err = utils.SendEmail(invoice)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
 }
 
-func TrackInvoice(w http.ResponseWriter, r *http.Request) {
-	// Implementation for tracking invoices
+func ListInvoices(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+		return
+	}
+
+	invoices := models.GetAllInvoices()
+	json.NewEncoder(w).Encode(invoices)
 }
 
-func GetReports(w http.ResponseWriter, r *http.Request) {
-	// Implementation for generating reports
+func SendReminder(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var req models.SendReminderRequest
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	invoice, err := models.GetInvoiceByID(req.InvoiceID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+
+	err = utils.SendReminderEmail(invoice)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
 }

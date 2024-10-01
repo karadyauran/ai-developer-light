@@ -1,18 +1,24 @@
 package utils
 
 import (
-	"encoding/json"
-	"net/http"
+	"errors"
+	"fmt"
+	"./models"
 )
 
-func RespondWithJSON(w http.ResponseWriter, status int, payload interface{}) {
-	response, err := json.Marshal(payload)
-	if err != nil {
-		http.Error(w, "Failed to generate response", http.StatusInternalServerError)
-		return
+func SendEmail(invoice models.Invoice) error {
+	if invoice.Status == "sent" {
+		return errors.New("invoice already sent")
 	}
+	fmt.Printf("Sending invoice to client: %s, Amount: %.2f\n", invoice.Client, invoice.Amount)
+	invoice.Status = "sent"
+	return nil
+}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(status)
-	w.Write(response)
+func SendReminderEmail(invoice models.Invoice) error {
+	if invoice.Status == "paid" {
+		return errors.New("invoice already paid")
+	}
+	fmt.Printf("Sending reminder for invoice ID: %s to client: %s\n", invoice.ID, invoice.Client)
+	return nil
 }

@@ -1,15 +1,53 @@
 package models
 
+import (
+	"errors"
+	"sync"
+)
+
 type Invoice struct {
-	ID          int     `json:"id"`
-	ClientName  string  `json:"client_name"`
-	Amount      float64 `json:"amount"`
-	Description string  `json:"description"`
-	Status      string  `json:"status"`
+	ID       string  `json:"id"`
+	Client   string  `json:"client"`
+	Amount   float64 `json:"amount"`
+	DueDate  string  `json:"due_date"`
+	Status   string  `json:"status"`
 }
 
-type Report struct {
-	TotalIncome float64 `json:"total_income"`
-	Pending     int     `json:"pending"`
-	Paid        int     `json:"paid"`
+type SendInvoiceRequest struct {
+	InvoiceID string `json:"invoice_id"`
+}
+
+type SendReminderRequest struct {
+	InvoiceID string `json:"invoice_id"`
+}
+
+var (
+	invoices = make(map[string]Invoice)
+	mutex    = &sync.Mutex{}
+)
+
+func AddInvoice(invoice Invoice) {
+	mutex.Lock()
+	defer mutex.Unlock()
+	invoices[invoice.ID] = invoice
+}
+
+func GetInvoiceByID(id string) (Invoice, error) {
+	mutex.Lock()
+	defer mutex.Unlock()
+	invoice, exists := invoices[id]
+	if !exists {
+		return Invoice{}, errors.New("invoice not found")
+	}
+	return invoice, nil
+}
+
+func GetAllInvoices() []Invoice {
+	mutex.Lock()
+	defer mutex.Unlock()
+	allInvoices := []Invoice{}
+	for _, invoice := range invoices {
+		allInvoices = append(allInvoices, invoice)
+	}
+	return allInvoices
 }

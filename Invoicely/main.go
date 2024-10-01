@@ -1,21 +1,20 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
-
 	"./handlers"
 )
 
 func main() {
-	http.HandleFunc("/create-invoice", handlers.CreateInvoice)
-	http.HandleFunc("/send-invoice", handlers.SendInvoice)
-	http.HandleFunc("/track-invoice", handlers.TrackInvoice)
-	http.HandleFunc("/get-reports", handlers.GetReports)
+	http.HandleFunc("/invoice/create", handlers.CreateInvoice)
+	http.HandleFunc("/invoice/send", handlers.SendInvoice)
+	http.HandleFunc("/invoice/list", handlers.ListInvoices)
+	http.HandleFunc("/invoice/reminder", handlers.SendReminder)
 
-	log.Println("Server starting on port 8080...")
-	err := http.ListenAndServe(":8080", nil)
-	if err != nil {
-		log.Fatalf("Server failed to start: %v", err)
+	fmt.Println("Server started at :8080")
+	if err := http.ListenAndServe(":8080", nil); err != nil {
+		log.Fatalf("Could not start server: %s\n", err)
 	}
 }
