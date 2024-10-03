@@ -1,0 +1,6 @@
+Provide an idea for a {language} application consisting of {n_files} files that addresses a real-world problem. In answer give my and app name in header and description after, use the only one "return". Without markdown. Up to 100 words
+
+Example:
+
+App Name
+Description

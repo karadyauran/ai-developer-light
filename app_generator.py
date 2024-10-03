@@ -14,16 +14,16 @@ class AppGenerator:
         openai.api_key = api_key
 
         self.model = model
-        self.languages = ["Go", "Python", "JavaScript", "Ruby", "Java"]
+        self.languages = ["Go", "Python", "JavaScript"]
         self.history = [
             {"role": "system", "content": "You are a senior software developer proficient in multiple programming languages."}
         ]
 
         self.prompts = {
-            'app_idea': self.load_prompt('prompts/app_idea_prompt.txt'),
-            'file_structure': self.load_prompt('prompts/file_structure_prompt.txt'),
-            'code_generation': self.load_prompt('prompts/code_generation_prompt.txt'),
-            'commit_message': self.load_prompt('prompts/commit_message_prompt.txt'),
+            'app_idea': self.load_prompt('scripts/app_idea_prompt.txt'),
+            'file_structure': self.load_prompt('scripts/file_structure_prompt.txt'),
+            'code_generation': self.load_prompt('scripts/code_generation_prompt.txt'),
+            'commit_message': self.load_prompt('scripts/commit_message_prompt.txt'),
         }
 
     def load_prompt(self, filepath):
@@ -32,7 +32,7 @@ class AppGenerator:
 
     def send_request(self, prompt, max_tokens):
         try:
-            response = openai.ChatCompletion.create(
+            response = openai.chat.completions.create(
                 model=self.model,
                 messages=self.history + [{"role": "user", "content": prompt}],
                 max_tokens=max_tokens,
@@ -62,7 +62,12 @@ class AppGenerator:
 
     def generate_code(self, file_name, language):
         prompt = self.prompts['code_generation'].format(file_name=file_name, language=language)
-        return self.send_request(prompt, 1000)
+        responce = self.send_request(prompt, 1000)
+
+        lines = responce.splitlines()
+        answer = "\n".join(lines[1:-1])
+
+        return answer
 
     def create_commit_message(self, file_name):
         prompt = self.prompts['commit_message'].format(file_name=file_name)
@@ -72,9 +77,7 @@ class AppGenerator:
         extensions = {
             "Go": "go",
             "Python": "py",
-            "JavaScript": "js",
-            "Ruby": "rb",
-            "Java": "java"
+            "JavaScript": "js"
         }
         return extensions.get(language, "txt")
 
@@ -83,5 +86,3 @@ class AppGenerator:
         app_dir = os.path.join(base_dir, app_name)
         os.makedirs(app_dir, exist_ok=True)
         os.chdir(app_dir)
-        if not os.path.exists('.git'):
-            subprocess.run(['git', 'init'])

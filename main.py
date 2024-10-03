@@ -1,11 +1,17 @@
+import os
 from app_generator import AppGenerator
 import random
 import subprocess
+from dotenv import load_dotenv
+
 
 def main():
+    load_dotenv()
+    mode = os.getenv('MODE')
+
     generator = AppGenerator()
     language = random.choice(generator.languages)
-    n_files = random.randint(2, 5)
+    n_files = random.randint(4, 7)
 
     idea_response = generator.generate_app_idea(language, n_files)
     idea_lines = idea_response.strip().splitlines()
@@ -27,11 +33,16 @@ def main():
         if code:
             with open(file_name, 'w') as f:
                 f.write(code)
-            subprocess.run(['git', 'add', file_name])
-            commit_message = generator.create_commit_message(file_name)
-            subprocess.run(['git', 'commit', '-m', commit_message])
 
-    # subprocess.run(['git', 'push', '-u', 'origin', 'main'])
+            if mode == 'prod':
+
+                subprocess.run(['git', 'add', file_name])
+                commit_message = generator.create_commit_message(file_name)
+                subprocess.run(['git', 'commit', '-m', commit_message])
+
+    if mode == 'prod':
+        subprocess.run(['git', 'push', '-u', 'origin', 'main'])
+
 
 if __name__ == "__main__":
     main()
