@@ -1,0 +1,6 @@
+Provide an idea for a {language} application consisting of {n_files} files that addresses a real-world problem. Include an app name and a brief description.
+
+Example:
+
+[APP_NAME]
+[DESCRIPTION]

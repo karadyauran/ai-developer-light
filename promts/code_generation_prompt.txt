@@ -1,0 +1,1 @@
+Write the code for {file_name} in {language}. Ensure all files interact properly. Limit the code to 300 lines. Provide only the code.
