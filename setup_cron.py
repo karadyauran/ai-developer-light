@@ -5,7 +5,7 @@ from random import randint
 
 
 def main():
-    venv_python = os.path.join(os.getcwd(), '/', '.venv', 'bin', 'python')
+    venv_python = os.path.join(os.getcwd(), '.venv', 'bin', 'python')
     script_path = os.path.abspath('main.py')
     command = f'{venv_python} {script_path}'
     logs = f'>> {os.path.abspath("logs")}/main.log 2>&1'
