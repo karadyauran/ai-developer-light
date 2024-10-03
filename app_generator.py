@@ -19,11 +19,13 @@ class AppGenerator:
             {"role": "system", "content": "You are a senior software developer proficient in multiple programming languages."}
         ]
 
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+
         self.prompts = {
-            'app_idea': self.load_prompt('scripts/app_idea_prompt.txt'),
-            'file_structure': self.load_prompt('scripts/file_structure_prompt.txt'),
-            'code_generation': self.load_prompt('scripts/code_generation_prompt.txt'),
-            'commit_message': self.load_prompt('scripts/commit_message_prompt.txt'),
+            'app_idea': self.load_prompt(f'{script_dir}/scripts/app_idea_prompt.txt'),
+            'file_structure': self.load_prompt(f'{script_dir}/scripts/file_structure_prompt.txt'),
+            'code_generation': self.load_prompt(f'{script_dir}/scripts/code_generation_prompt.txt'),
+            'commit_message': self.load_prompt(f'{script_dir}/scripts/commit_message_prompt.txt'),
         }
 
     def load_prompt(self, filepath):
