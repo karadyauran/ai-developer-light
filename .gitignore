@@ -1,4 +1,2 @@
-cfg_server.py
-start_server.py
-env
+venv
 .env
