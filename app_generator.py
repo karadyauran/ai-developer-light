@@ -79,7 +79,7 @@ class AppGenerator:
         return extensions.get(language, "txt")
 
     def create_repository(self, app_name):
-        base_dir = os.path.expanduser("~/example-codes")
+        base_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'projects')
         app_dir = os.path.join(base_dir, app_name)
         os.makedirs(app_dir, exist_ok=True)
         os.chdir(app_dir)
