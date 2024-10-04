@@ -3,6 +3,7 @@ from app_generator import AppGenerator
 import random
 import subprocess
 from dotenv import load_dotenv
+from time import sleep
 
 
 def main():
@@ -25,7 +26,7 @@ def main():
 
     generator.create_repository(app_name)
 
-    n_files_logic = random.randint(2, n_files)
+    n_files_logic = random.randint(4, n_files)
     file_names = generator.generate_file_structure(language, n_files_logic)
 
     for file_name in file_names:
@@ -37,8 +38,11 @@ def main():
             if mode == 'prod':
 
                 subprocess.run(['git', 'add', file_name])
-                commit_message = generator.create_commit_message(file_name)
+                commit_message = "ai: " + generator.create_commit_message(file_name)
                 subprocess.run(['git', 'commit', '-m', commit_message])
+
+                delay_in_seconds = random.randint(30, 120)
+                sleep(delay_in_seconds)
 
     if mode == 'prod':
         subprocess.run(['git', 'push', '-u', 'origin', 'main'])
