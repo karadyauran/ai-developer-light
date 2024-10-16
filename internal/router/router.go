@@ -1,13 +1,13 @@
 package routers
 
 import (
+	"ai-dev-light/internal/config"
+	"ai-dev-light/internal/controller"
 	"fmt"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
-	"karadyaur.io/ai-dev-light/internal/config"
-	"karadyaur.io/ai-dev-light/internal/controller"
 	"net/http"
 )
 
