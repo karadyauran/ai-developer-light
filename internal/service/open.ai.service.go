@@ -4,24 +4,31 @@ import (
 	"ai-dev-light/internal/config"
 	"ai-dev-light/internal/model"
 	"context"
+
 	"github.com/sashabaranov/go-openai"
 )
 
 type OpenAIService struct {
-	ApiKey string
+	ApiKey   string
+	Model    string
+	Messages []model.Message
 }
 
-func NewOpenAIService(config *config.Config) *OpenAIService {
+func NewOpenAIService(cfg *config.Config, chatModel string) *OpenAIService {
 	return &OpenAIService{
-		ApiKey: config.OpenApiKey,
+		ApiKey:   cfg.OpenApiKey,
+		Model:    chatModel,
+		Messages: []model.Message{},
 	}
 }
 
 func (oas *OpenAIService) SendRequest(openAIRequest model.OpenAIRequest) (string, error) {
+	oas.Messages = openAIRequest.Messages
+
 	client := openai.NewClient(oas.ApiKey)
 	req := openai.ChatCompletionRequest{
 		Model:       openAIRequest.Model,
-		Messages:    chatRecordsToOpenAIMessages(openAIRequest.Messages),
+		Messages:    chatRecordsToOpenAIMessages(oas.Messages),
 		MaxTokens:   openAIRequest.MaxTokens,
 		Temperature: openAIRequest.Temperature,
 	}
@@ -43,4 +50,8 @@ func chatRecordsToOpenAIMessages(records []model.Message) []openai.ChatCompletio
 		})
 	}
 	return messages
+}
+
+func (oas *OpenAIService) ResetMessages() {
+	oas.Messages = []model.Message{}
 }

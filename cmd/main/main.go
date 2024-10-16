@@ -23,7 +23,12 @@ func main() {
 		os.Exit(1)
 	}
 
-	newService := service.NewService(&newConfig)
+	newService, err := service.NewService(&newConfig, "gpt-4o")
+
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "cannot create service: %v\n", err)
+	}
+
 	newController := controller.NewController(newService)
 	newRouter := routers.NewRouter(&newConfig, newController)
 
