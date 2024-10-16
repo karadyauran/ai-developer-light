@@ -1,8 +1,13 @@
 package service
 
+import "ai-dev-light/internal/config"
+
 type Service struct {
+	openAIService *OpenAIService
 }
 
-func NewService() *Service {
-	return &Service{}
+func NewService(config *config.Config) *Service {
+	return &Service{
+		openAIService: NewOpenAIService(config),
+	}
 }

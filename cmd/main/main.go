@@ -4,7 +4,9 @@ import (
 	"ai-dev-light/internal/config"
 	"ai-dev-light/internal/controller"
 	routers "ai-dev-light/internal/router"
+	"ai-dev-light/internal/service"
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -21,7 +23,8 @@ func main() {
 		os.Exit(1)
 	}
 
-	newController := controller.NewController()
+	newService := service.NewService(&newConfig)
+	newController := controller.NewController(newService)
 	newRouter := routers.NewRouter(&newConfig, newController)
 
 	newServer := &http.Server{
@@ -32,7 +35,7 @@ func main() {
 	// Start the server in a separate goroutine
 	go func() {
 		log.Printf("Server is running on port %s\n", newConfig.ServerPort)
-		if err := newServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		if err := newServer.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			log.Fatalf("Server start failed: %s\n", err)
 		}
 	}()
@@ -47,7 +50,7 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	// Attempt to gracefully shutdown the server
+	// Attempt to gracefully shut down the server
 	if err := newServer.Shutdown(ctx); err != nil {
 		log.Printf("Server Shutdown Error: %v", err)
 	}
