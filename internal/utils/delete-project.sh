@@ -1,0 +1,10 @@
+#!/bin/bash
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT_DIRECTORY="$(dirname "$(dirname "$SCRIPT_DIR")")"
+PROJECT_NAME="$1"
+
+GENERATED_PROJECTS_DIR="$ROOT_DIRECTORY/generated_projects"
+PROJECT_DIRECTORY="$GENERATED_PROJECTS_DIR/$PROJECT_NAME"
+
+rm -rf "$PROJECT_DIRECTORY"
