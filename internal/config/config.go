@@ -8,7 +8,7 @@ import (
 type Config struct {
 	EnvType       string `mapstructure:"ENV_TYPE"`
 	ServerPort    string `mapstructure:"SERVER_PORT"`
-	OpenApiKey    string `mapstructure:"OPEN_API_KEY"`
+	OpenApiKey    string `mapstructure:"OPENAI_API_KEY"`
 	WebappBaseUrl string `mapstructure:"WEBAPP_BASE_URL"`
 }
 

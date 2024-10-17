@@ -1,220 +1,183 @@
 package service
 
 import (
-	"ai-dev-light/internal/model"
-	"errors"
+	"context"
 	"fmt"
+	"github.com/sashabaranov/go-openai"
+	"log"
 	"os"
+	"os/exec"
 	"path/filepath"
-	"strings"
 
-	"github.com/google/uuid"
+	"ai-dev-light/internal/config"
+	"ai-dev-light/internal/model"
 )
 
 const (
-	placeholderLanguage = "{language}"
-	placeholderNFiles   = "{n_files}"
-	placeholderExt      = "{ext}"
-	placeholderFileName = "{file_name}"
+	systemRole    = "system"
+	assistantRole = "assistant"
+	userRole      = "user"
 )
 
 type AppBuilder struct {
-	OpenAIService *OpenAIService
-	Prompts       map[string]string
-	Languages     []string
-	History       []model.Message
+	Client          *openai.Client
+	ContextMessages []openai.ChatCompletionMessage
+	PromptFiles     map[string]string
 }
 
-func NewAppBuilderService(openAIService *OpenAIService) (*AppBuilder, error) {
-	prompts, err := loadPrompts()
+func NewAppBuilderService(cfg *config.Config) *AppBuilder {
+	scriptDir, err := os.Getwd()
 	if err != nil {
-		return nil, err
+		log.Fatal(err)
+	}
+
+	promptsDir := filepath.Join(scriptDir, "internal", "service", "prompts")
+
+	contextFiles := map[string]string{
+		"general_settings": filepath.Join(promptsDir, "general_settings.txt"),
+	}
+
+	prompts := map[string]string{
+		"app_idea_generator":    filepath.Join(promptsDir, "app_idea_generator.txt"),
+		"app_name_generator":    filepath.Join(promptsDir, "app_name_generator.txt"),
+		"give_structure_to_gpt": filepath.Join(promptsDir, "give_structure_to_gpt.txt"),
+		"get_gpt_files":         filepath.Join(promptsDir, "get_gpt_files.txt"),
+		"generate_code":         filepath.Join(promptsDir, "generate_code.txt"),
+		"create_commit_message": filepath.Join(promptsDir, "create_commit_message.txt"),
+	}
+
+	contextMessages, err := loadContext(contextFiles)
+	if err != nil {
+		log.Fatal(err)
 	}
 
 	return &AppBuilder{
-		OpenAIService: openAIService,
-		Prompts:       prompts,
-		Languages:     []string{"Go", "Python", "JavaScript"},
-		History: []model.Message{
-			{Role: "system", Content: "You are a senior software developer proficient in multiple programming languages."},
-		},
-	}, nil
+		Client:          openai.NewClient(cfg.OpenApiKey),
+		ContextMessages: contextMessages,
+		PromptFiles:     prompts,
+	}
 }
 
-func loadPrompts() (map[string]string, error) {
-	prompts := make(map[string]string)
-	scriptDir, err := os.Getwd()
-	if err != nil {
-		return nil, err
-	}
-	promptFiles := map[string]string{
-		"app_idea":        filepath.Join(scriptDir, "internal", "scripts", "app_idea_prompt.txt"),
-		"file_structure":  filepath.Join(scriptDir, "internal", "scripts", "file_structure_prompt.txt"),
-		"code_generation": filepath.Join(scriptDir, "internal", "scripts", "code_generation_prompt.txt"),
-		"commit_message":  filepath.Join(scriptDir, "internal", "scripts", "commit_message_prompt.txt"),
-	}
+func loadContext(promptFiles map[string]string) ([]openai.ChatCompletionMessage, error) {
+	var messages []openai.ChatCompletionMessage
 
-	for key, filePath := range promptFiles {
+	for _, filePath := range promptFiles {
 		content, err := os.ReadFile(filePath)
 		if err != nil {
 			return nil, err
 		}
-		prompts[key] = string(content)
+
+		messages = append(messages, openai.ChatCompletionMessage{
+			Role:    systemRole,
+			Content: string(content),
+		})
 	}
-	return prompts, nil
+
+	return messages, nil
 }
 
-func (ab *AppBuilder) GenerateUniqueAppName(baseName string) string {
-	uniqueID := uuid.New().String()[:8]
-	return fmt.Sprintf("%s_%s", baseName, uniqueID)
-}
-
-func (ab *AppBuilder) GenerateAppIdea(language string, nFiles int) (string, error) {
-	promptTemplate, ok := ab.Prompts["app_idea"]
-	if !ok {
-		return "", errors.New("app_idea prompt not found")
-	}
-	prompt := strings.ReplaceAll(promptTemplate, placeholderLanguage, language)
-	prompt = strings.ReplaceAll(prompt, placeholderNFiles, fmt.Sprintf("%d", nFiles))
-
-	ab.History = append(ab.History, model.Message{Role: "user", Content: prompt})
-
-	openAIRequest := model.OpenAIRequest{
-		Model:       ab.OpenAIService.Model,
-		MaxTokens:   150,
-		Temperature: 0.7,
-		Messages:    ab.History,
+func (ap *AppBuilder) sendChatGPTRequest(request model.Request) (string, error) {
+	userMessage := openai.ChatCompletionMessage{
+		Role:    userRole,
+		Content: request.Request,
 	}
 
-	response, err := ab.OpenAIService.SendRequest(openAIRequest)
+	messages := append(ap.ContextMessages, userMessage)
+
+	req := openai.ChatCompletionRequest{
+		Model:       request.Model,
+		Messages:    messages,
+		MaxTokens:   request.MaxTokens,
+		Temperature: request.Temperature,
+	}
+
+	resp, err := ap.Client.CreateChatCompletion(context.Background(), req)
 	if err != nil {
 		return "", err
 	}
 
-	ab.History = append(ab.History, model.Message{Role: "assistant", Content: response})
+	answer := resp.Choices[0].Message.Content
 
-	return response, nil
+	assistantMessage := openai.ChatCompletionMessage{
+		Role:    assistantRole,
+		Content: answer,
+	}
+
+	// Update the context messages
+	ap.ContextMessages = append(messages, assistantMessage)
+
+	return answer, nil
 }
 
-func (ab *AppBuilder) GenerateFileStructure(language string, nFiles int) ([]string, error) {
-	promptTemplate, ok := ab.Prompts["file_structure"]
-	if !ok {
-		return nil, errors.New("file_structure prompt not found")
-	}
-	ext := ab.GetFileExtension(language)
-	prompt := strings.ReplaceAll(promptTemplate, placeholderLanguage, language)
-	prompt = strings.ReplaceAll(prompt, placeholderNFiles, fmt.Sprintf("%d", nFiles))
-	prompt = strings.ReplaceAll(prompt, placeholderExt, ext)
-
-	ab.History = append(ab.History, model.Message{Role: "user", Content: prompt})
-
-	openAIRequest := model.OpenAIRequest{
-		Model:       ab.OpenAIService.Model,
-		MaxTokens:   50,
-		Temperature: 0.7,
-		Messages:    ab.History,
-	}
-
-	response, err := ab.OpenAIService.SendRequest(openAIRequest)
-	if err != nil {
-		return nil, err
-	}
-
-	ab.History = append(ab.History, model.Message{Role: "assistant", Content: response})
-
-	// Process response into a slice of file names
-	files := strings.Split(response, ",")
-	for i, file := range files {
-		files[i] = strings.TrimSpace(file)
-	}
-
-	return files, nil
+func (ap *AppBuilder) sendRequestToChatGPTWithResponse(request model.Request) (string, error) {
+	return ap.sendChatGPTRequest(request)
 }
 
-func (ab *AppBuilder) GenerateCode(fileName, language string) (string, error) {
-	promptTemplate, ok := ab.Prompts["code_generation"]
-	if !ok {
-		return "", errors.New("code_generation prompt not found")
-	}
-	prompt := strings.ReplaceAll(promptTemplate, placeholderFileName, fileName)
-	prompt = strings.ReplaceAll(prompt, placeholderLanguage, language)
+func (ap *AppBuilder) sendRequestToChatGPTWithoutResponse(request model.Request) error {
+	_, err := ap.sendChatGPTRequest(request)
+	return err
+}
 
-	ab.History = append(ab.History, model.Message{Role: "user", Content: prompt})
-
-	openAIRequest := model.OpenAIRequest{
-		Model:       ab.OpenAIService.Model,
-		MaxTokens:   1000,
-		Temperature: 0.7,
-		Messages:    ab.History,
-	}
-
-	response, err := ab.OpenAIService.SendRequest(openAIRequest)
+func getContentFromFile(path string) (string, error) {
+	content, err := os.ReadFile(path)
 	if err != nil {
 		return "", err
 	}
-
-	ab.History = append(ab.History, model.Message{Role: "assistant", Content: response})
-
-	code := processCodeResponse(response)
-
-	return code, nil
+	return string(content), nil
 }
 
-func processCodeResponse(response string) string {
-	lines := strings.Split(response, "\n")
-	if len(lines) > 2 {
-		return strings.Join(lines[1:len(lines)-1], "\n")
-	}
-	return response
-}
-
-func (ab *AppBuilder) CreateCommitMessage(fileName string) (string, error) {
-	promptTemplate, ok := ab.Prompts["commit_message"]
-	if !ok {
-		return "", errors.New("commit_message prompt not found")
-	}
-	prompt := strings.ReplaceAll(promptTemplate, placeholderFileName, fileName)
-
-	ab.History = append(ab.History, model.Message{Role: "user", Content: prompt})
-
-	openAIRequest := model.OpenAIRequest{
-		Model:       ab.OpenAIService.Model,
-		MaxTokens:   50,
-		Temperature: 0.7,
-		Messages:    ab.History,
-	}
-
-	response, err := ab.OpenAIService.SendRequest(openAIRequest)
-	if err != nil {
-		return "", err
-	}
-
-	ab.History = append(ab.History, model.Message{Role: "assistant", Content: response})
-
-	return response, nil
-}
-
-func (ab *AppBuilder) GetFileExtension(language string) string {
-	extensions := map[string]string{
-		"Go":         "go",
-		"Python":     "py",
-		"JavaScript": "js",
-	}
-	if ext, exists := extensions[language]; exists {
-		return ext
-	}
-	return "txt"
-}
-
-func (ab *AppBuilder) CreateRepository(appName string) error {
-	baseDir, err := os.Getwd()
+func (ap *AppBuilder) generateAppIdea() error {
+	content, err := getContentFromFile(ap.PromptFiles["app_idea_generator"])
 	if err != nil {
 		return err
 	}
-	appDir := filepath.Join(baseDir, "projects", appName)
-	err = os.MkdirAll(appDir, os.ModePerm)
+
+	return ap.sendRequestToChatGPTWithoutResponse(model.Request{
+		Request:     content,
+		Model:       "gpt-4o",
+		MaxTokens:   10000,
+		Temperature: 0.7,
+	})
+}
+
+func (ap *AppBuilder) generateAppName() (string, error) {
+	content, err := getContentFromFile(ap.PromptFiles["app_name_generator"])
+	if err != nil {
+		return "", err
+	}
+
+	return ap.sendRequestToChatGPTWithResponse(model.Request{
+		Request:     content,
+		Model:       "gpt-4o",
+		MaxTokens:   50,
+		Temperature: 1.0,
+	})
+}
+
+func createBaseStructure(appName string) error {
+
+	scriptPath := filepath.Join("internal", "utils", "generate-arch.sh")
+	cmd := exec.Command("bash", scriptPath, appName)
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("failed to create base structure: %v, output: %s", err, string(output))
+	}
+	return nil
+}
+
+func (ap *AppBuilder) BuildWithNoContext() error {
+	if err := ap.generateAppIdea(); err != nil {
+		return err
+	}
+
+	appName, err := ap.generateAppName()
 	if err != nil {
 		return err
 	}
-	return os.Chdir(appDir)
+
+	if err := createBaseStructure(appName); err != nil {
+		return err
+	}
+
+	return nil
 }

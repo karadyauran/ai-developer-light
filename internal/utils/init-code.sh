@@ -198,7 +198,4 @@ func NewService() *Service {
 }
 EOF
 
-go mod init "$PROJECT_NAME"
-mv go.mod "$GENERATED_PROJECTS_DIR/$PROJECT_NAME"
-
 echo "Files created."

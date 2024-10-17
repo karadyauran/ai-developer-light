@@ -19,15 +19,14 @@ import (
 func main() {
 	newConfig, err := config.LoadConfig("./")
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "cannot load config: %v\n", err)
+		_, err := fmt.Fprintf(os.Stderr, "cannot load config: %v\n", err)
+		if err != nil {
+			return
+		}
 		os.Exit(1)
 	}
 
-	newService, err := service.NewService(&newConfig, "gpt-4o")
-
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "cannot create service: %v\n", err)
-	}
+	newService := service.NewService(&newConfig)
 
 	newController := controller.NewController(newService)
 	newRouter := routers.NewRouter(&newConfig, newController)

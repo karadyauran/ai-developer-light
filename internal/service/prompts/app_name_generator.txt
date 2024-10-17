@@ -1,0 +1,2 @@
+Generate a project name for the given idea in English, using snake_case format. The name should not exceed 15 characters.
+Provide me ONLY the name!

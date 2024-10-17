@@ -5,18 +5,11 @@ import (
 )
 
 type Service struct {
-	AppBuilder    *AppBuilder
-	OpenAIService *OpenAIService
+	AppBuilder *AppBuilder
 }
 
-func NewService(cfg *config.Config, model string) (*Service, error) {
-	openAIService := NewOpenAIService(cfg, model)
-	appBuilder, err := NewAppBuilderService(openAIService)
-	if err != nil {
-		return nil, err
-	}
+func NewService(config *config.Config) *Service {
 	return &Service{
-		OpenAIService: openAIService,
-		AppBuilder:    appBuilder,
-	}, nil
+		AppBuilder: NewAppBuilderService(config),
+	}
 }
