@@ -1,3 +1,0 @@
-Generate a detailed project idea for a real-life application that can be implemented on Go using Gin.
-The project should be a small tool focused on providing an API service without using databases or microservices.
-The industry is not important, and there are no specific deadlines.
