@@ -4,6 +4,7 @@ import (
 	"ai-dev-light/internal/config"
 	"ai-dev-light/internal/service"
 	"fmt"
+	"log"
 	"os"
 )
 
@@ -17,11 +18,16 @@ func main() {
 		os.Exit(1)
 	}
 
-	newService := service.NewService(&newConfig)
-	err = newService.AppBuilder.BuildWithNoContext()
+	newService, err := service.NewService(&newConfig)
 	if err != nil {
-		return
+		log.Fatalf("Failed to create Service: %v", err)
 	}
+
+	if err := newService.AppBuilder.BuildWithNoContext(); err != nil {
+		log.Fatalf("Failed to build project: %v", err)
+	}
+
+	fmt.Println("Project built successfully")
 
 	/*newController := controller.NewController(newService)
 	newRouter := routers.NewRouter(&newConfig, newController)
