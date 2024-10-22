@@ -31,7 +31,8 @@ We are continuously improving AI Dev Developer to add more features like:
 
 Check out the video below to see how AI Dev Developer works in action:
 
-[![AI Dev Developer Demo](https://imgur.com/a/HvJmkFq)](https://vimeo.com/1022060417?share=copy#t=0)
+![AI Dev Developer Demo](.github/assets/demo-github.mp4)
+
 ## 🤝 Contributions
 
 If you’re passionate about helping others build web apps faster or have ideas on how to improve this tool, feel free to contribute or submit your feedback.
