@@ -241,6 +241,7 @@ func (ap *AppBuilder) generaFilesNamesForStructure() ([]string, error) {
 
 func (ap *AppBuilder) touchFiles(files []string, projectName string) error {
 	for _, file := range files {
+		file = removeExtraSpaces(file)
 		fmt.Println(file, " generating")
 		scriptPath := filepath.Join("internal", "utils", "create-file.sh")
 		cmd := exec.Command("bash", scriptPath, projectName, file)
@@ -253,9 +254,13 @@ func (ap *AppBuilder) touchFiles(files []string, projectName string) error {
 			return fmt.Errorf("failed to create file: %v, output: %s", err, string(output))
 		}
 
-		time.Sleep(120 * time.Second)
+		time.Sleep(7 * time.Second)
 	}
 	return nil
+}
+
+func removeExtraSpaces(str string) string {
+	return strings.Join(strings.Fields(str), " ")
 }
 
 func (ap *AppBuilder) generateCode(filePath string, projectName string) error {
