@@ -1,0 +1,16 @@
+{
+  "name": "carbon_track",
+  "version": "1.0.0",
+  "description": "API for tracking carbon footprint",
+  "main": "cmd/main/main.go",
+  "scripts": {
+    "build": "make build",
+    "start": "make run",
+    "test": "make test",
+    "lint": "make lint"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {},
+  "devDependencies": {}
+}
