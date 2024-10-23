@@ -27,14 +27,6 @@ We are continuously improving AI Dev Developer to add more features like:
 - 🔄 Working on existing projects instead of starting new ones
 - 🌍 Frontend integration and deployment to a server for file generation
 
-[//]: # (## 🎥 Demo)
-
-[//]: # ()
-[//]: # (Check out the video below to see how AI Dev Developer works in action:)
-
-[//]: # ()
-[//]: # (![AI Dev Developer Demo]&#40;.github/assets/demo-github.mp4&#41;)
-
 ## 🤝 Contributions
 
 If you’re passionate about helping others build web apps faster or have ideas on how to improve this tool, feel free to contribute or submit your feedback.
