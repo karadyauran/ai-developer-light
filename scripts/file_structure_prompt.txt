@@ -1,5 +1,0 @@
-List {n_files} file names for the {language} app we discussed. Use the .{ext} extension. without spaces.
-
-Example:
-
-file1.{ext}, file2.{ext}, file3.{ext}
