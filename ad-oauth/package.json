@@ -1,13 +1,17 @@
 {
-  "name": "ai-developer-light",
+  "name": "sc-auth",
   "version": "0.1.0",
-  "description": "",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "make build",
+    "start": "nodemon --watch . --exec 'make start' --signal SIGTERM --ext go,json,yaml,sql,env,sh",
+    "serve": "nodemon --watch . --exec 'make start' --signal SIGTERM --ext go,json,yaml,sql,env,sh",
+    "db:generate": "make db-schema",
+    "test:integration": "make test"
   },
   "keywords": [],
   "author": "karadyauran",
+  "license": "ISC",
   "dependencies": {
     "nodemon": "^3.1.7"
   }

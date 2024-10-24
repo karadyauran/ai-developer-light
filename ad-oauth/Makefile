@@ -1,3 +1,7 @@
+build: ## Build the project
+	@echo "Building the project..."
+	go build -o main cmd/general/main.go
+
 start: ## Run the project
 	go run cmd/general/main.go
 
@@ -7,11 +11,11 @@ test: ## Run all tests
 install: ## Install dependencies
 	go mod tidy
 
-swag: ##  Generate swagger specification
-	swag init -g cmd/general/main.go
+db-schema: ## Generate db schema
+	sqlc generate
 
-proto-generate-auth-service:
-	protoc --proto_path=../proto --go_out=./internal --go-grpc_out=./internal ../proto/auth.proto
+proto-generate:
+	protoc --proto_path=../proto --go_out=./internal --go-grpc_out=./internal ../proto/user_auth.proto
 
 help: ## Display help message
 	@echo "Available targets:"

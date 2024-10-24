@@ -1,4 +1,4 @@
-\c sc_db
+\c ad_db
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- Creating a trigger to update the time (updated_at) when a record changes
