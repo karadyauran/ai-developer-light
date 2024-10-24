@@ -1,0 +1,8 @@
+CREATE TABLE carbon_records (
+    id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL,
+    activity VARCHAR(255) NOT NULL,
+    amount FLOAT NOT NULL,
+    unit VARCHAR(50) NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);

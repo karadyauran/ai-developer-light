@@ -1,0 +1,21 @@
+{
+  "name": "eco_track_api",
+  "version": "1.0.0",
+  "description": "API service to monitor and reduce carbon footprint",
+  "main": "cmd/main/main.go",
+  "scripts": {
+    "start": "make run",
+    "build": "make build",
+    "test": "make test",
+    "lint": "make lint",
+    "migrate-up": "make migrate-up",
+    "migrate-down": "make migrate-down",
+    "docker-up": "make docker-up",
+    "docker-down": "make docker-down",
+    "clean": "make clean"
+  },
+  "dependencies": {},
+  "devDependencies": {},
+  "author": "",
+  "license": "ISC"
+}

@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15
+    container_name: eco_track_db
+    environment:
+      POSTGRES_USER: eco_user
+      POSTGRES_PASSWORD: eco_pass
+      POSTGRES_DB: eco_db
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: eco_track_api
+    environment:
+      ENV_TYPE: development
+      SERVER_PORT: 8080
+      WEBAPP_BASE_URL: http://localhost
+      DATABASE_URL: postgres://eco_user:eco_pass@db:5432/eco_db?sslmode=disable
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+
+volumes:
+  db_data:
