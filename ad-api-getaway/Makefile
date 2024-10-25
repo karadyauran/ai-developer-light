@@ -10,8 +10,8 @@ install: ## Install dependencies
 swag: ##  Generate swagger specification
 	swag init -g cmd/general/main.go
 
-proto-generate-auth-service:
-	protoc --proto_path=../proto --go_out=./internal --go-grpc_out=./internal ../proto/auth.proto
+proto-generate-oauth-service:
+	protoc --proto_path=../proto --go_out=./internal --go-grpc_out=./internal ../proto/oauth.proto
 
 help: ## Display help message
 	@echo "Available targets:"

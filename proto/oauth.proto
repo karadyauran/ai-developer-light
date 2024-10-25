@@ -7,7 +7,7 @@ option go_package = "./generated";
 
 import "google/protobuf/wrappers.proto";
 
-service UserService {
+service OAuthService {
   rpc Authenticate(AuthenticateUserRequest) returns (UserResponse);
   rpc GetUserByID(GetUserByIDRequest) returns (UserResponse);
   rpc GetUserByGitHubID(GetUserByGitHubIDRequest) returns (UserResponse);

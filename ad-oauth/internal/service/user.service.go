@@ -11,7 +11,7 @@ import (
 	"karadyaur.io/ai-dev-light/ad-oauth/internal/utils"
 )
 
-type IUserRepository interface {
+type IOAuthRepository interface {
 	CreateUser(ctx context.Context, arg db.CreateUserParams) (db.User, error)
 	DeleteUser(ctx context.Context, id pgtype.UUID) error
 	GetUserByGitHubID(ctx context.Context, githubID int64) (db.User, error)
@@ -19,30 +19,30 @@ type IUserRepository interface {
 	UpdateUserToken(ctx context.Context, arg db.UpdateUserTokenParams) error
 }
 
-type UserService struct {
-	userRepository IUserRepository
-	GitHubAuth     *utils.GitHubOAuth
+type OAuthService struct {
+	oAuthRepository IOAuthRepository
+	GitHubAuth      *utils.GitHubOAuth
 }
 
-func NewUserService(userRepository IUserRepository, gitHubAuth *utils.GitHubOAuth) *UserService {
-	return &UserService{
-		userRepository: userRepository,
-		GitHubAuth:     gitHubAuth,
+func NewOAuthService(oAuthRepository IOAuthRepository, gitHubAuth *utils.GitHubOAuth) *OAuthService {
+	return &OAuthService{
+		oAuthRepository: oAuthRepository,
+		GitHubAuth:      gitHubAuth,
 	}
 }
 
-func (s *UserService) Authenticate(ctx context.Context, code string) (*model.User, error) {
-	token, err := s.GitHubAuth.ExchangeCode(ctx, code)
+func (oauth *OAuthService) Authenticate(ctx context.Context, code string) (*model.User, error) {
+	token, err := oauth.GitHubAuth.ExchangeCode(ctx, code)
 	if err != nil {
 		return nil, err
 	}
 
-	ghUser, err := s.GitHubAuth.GetUser(ctx, token)
+	ghUser, err := oauth.GitHubAuth.GetUser(ctx, token)
 	if err != nil {
 		return nil, err
 	}
 
-	user, err := s.GetUserByGitHubID(ctx, ghUser.ID)
+	user, err := oauth.GetUserByGitHubID(ctx, ghUser.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -57,12 +57,12 @@ func (s *UserService) Authenticate(ctx context.Context, code string) (*model.Use
 			},
 			Token: token.AccessToken,
 		}
-		err = s.CreateUser(ctx, user)
+		err = oauth.CreateUser(ctx, user)
 		if err != nil {
 			return nil, err
 		}
 	} else {
-		err = s.userRepository.UpdateUserToken(ctx, db.UpdateUserTokenParams{
+		err = oauth.oAuthRepository.UpdateUserToken(ctx, db.UpdateUserTokenParams{
 			ID:    user.ID,
 			Token: token.AccessToken,
 		})
@@ -75,8 +75,8 @@ func (s *UserService) Authenticate(ctx context.Context, code string) (*model.Use
 	return user, nil
 }
 
-func (s *UserService) GetUserByID(ctx context.Context, id pgtype.UUID) (*model.User, error) {
-	dbUser, err := s.userRepository.GetUserByID(ctx, id)
+func (oauth *OAuthService) GetUserByID(ctx context.Context, id pgtype.UUID) (*model.User, error) {
+	dbUser, err := oauth.oAuthRepository.GetUserByID(ctx, id)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil
@@ -95,8 +95,8 @@ func (s *UserService) GetUserByID(ctx context.Context, id pgtype.UUID) (*model.U
 	return user, nil
 }
 
-func (s *UserService) GetUserByGitHubID(ctx context.Context, githubID int64) (*model.User, error) {
-	dbUser, err := s.userRepository.GetUserByGitHubID(ctx, githubID)
+func (oauth *OAuthService) GetUserByGitHubID(ctx context.Context, githubID int64) (*model.User, error) {
+	dbUser, err := oauth.oAuthRepository.GetUserByGitHubID(ctx, githubID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil
@@ -115,8 +115,8 @@ func (s *UserService) GetUserByGitHubID(ctx context.Context, githubID int64) (*m
 	return user, nil
 }
 
-func (s *UserService) CreateUser(ctx context.Context, user *model.User) error {
-	createdUser, err := s.userRepository.CreateUser(ctx, db.CreateUserParams{
+func (oauth *OAuthService) CreateUser(ctx context.Context, user *model.User) error {
+	createdUser, err := oauth.oAuthRepository.CreateUser(ctx, db.CreateUserParams{
 		GithubID: user.GitHubID,
 		Username: user.Username,
 		Email:    user.Email,

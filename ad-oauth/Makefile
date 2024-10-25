@@ -15,7 +15,7 @@ db-schema: ## Generate db schema
 	sqlc generate
 
 proto-generate:
-	protoc --proto_path=../proto --go_out=./internal --go-grpc_out=./internal ../proto/user_auth.proto
+	protoc --proto_path=../proto --go_out=./internal --go-grpc_out=./internal ../proto/oauth.proto
 
 help: ## Display help message
 	@echo "Available targets:"

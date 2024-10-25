@@ -7,12 +7,12 @@ import (
 )
 
 type Service struct {
-	UserService *UserService
+	OAuthService *OAuthService
 }
 
 func NewService(pool *pgxpool.Pool, gitHubAuth *utils.GitHubOAuth) *Service {
 	queries := db.New(pool)
 	return &Service{
-		UserService: NewUserService(queries, gitHubAuth),
+		OAuthService: NewOAuthService(queries, gitHubAuth),
 	}
 }
