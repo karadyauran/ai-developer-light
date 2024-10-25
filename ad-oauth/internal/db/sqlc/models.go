@@ -12,6 +12,7 @@ type User struct {
 	ID        pgtype.UUID        `json:"id"`
 	GithubID  int64              `json:"github_id"`
 	Username  string             `json:"username"`
+	AvatarUrl pgtype.Text        `json:"avatar_url"`
 	Email     pgtype.Text        `json:"email"`
 	Token     string             `json:"token"`
 	CreatedAt pgtype.Timestamptz `json:"created_at"`

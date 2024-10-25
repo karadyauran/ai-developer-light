@@ -11,10 +11,10 @@ import (
 )
 
 type Querier interface {
-	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
+	CreateUser(ctx context.Context, arg CreateUserParams) (CreateUserRow, error)
 	DeleteUser(ctx context.Context, id pgtype.UUID) error
-	GetUserByGitHubID(ctx context.Context, githubID int64) (User, error)
-	GetUserByID(ctx context.Context, id pgtype.UUID) (User, error)
+	GetUserByGitHubID(ctx context.Context, githubID int64) (GetUserByGitHubIDRow, error)
+	GetUserByID(ctx context.Context, id pgtype.UUID) (GetUserByIDRow, error)
 	UpdateUserToken(ctx context.Context, arg UpdateUserTokenParams) error
 }
 

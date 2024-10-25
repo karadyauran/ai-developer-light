@@ -12,10 +12,10 @@ import (
 )
 
 type IOAuthRepository interface {
-	CreateUser(ctx context.Context, arg db.CreateUserParams) (db.User, error)
+	CreateUser(ctx context.Context, arg db.CreateUserParams) (db.CreateUserRow, error)
 	DeleteUser(ctx context.Context, id pgtype.UUID) error
-	GetUserByGitHubID(ctx context.Context, githubID int64) (db.User, error)
-	GetUserByID(ctx context.Context, id pgtype.UUID) (db.User, error)
+	GetUserByGitHubID(ctx context.Context, githubID int64) (db.GetUserByGitHubIDRow, error)
+	GetUserByID(ctx context.Context, id pgtype.UUID) (db.GetUserByIDRow, error)
 	UpdateUserToken(ctx context.Context, arg db.UpdateUserTokenParams) error
 }
 
@@ -51,6 +51,10 @@ func (oauth *OAuthService) Authenticate(ctx context.Context, code string) (*mode
 		user = &model.User{
 			GitHubID: ghUser.ID,
 			Username: ghUser.Username,
+			AvatarURL: pgtype.Text{
+				String: ghUser.AvatarURL,
+				Valid:  ghUser.AvatarURL != "",
+			},
 			Email: pgtype.Text{
 				String: ghUser.Email,
 				Valid:  ghUser.Email != "",
@@ -85,11 +89,12 @@ func (oauth *OAuthService) GetUserByID(ctx context.Context, id pgtype.UUID) (*mo
 	}
 
 	user := &model.User{
-		ID:       dbUser.ID,
-		GitHubID: dbUser.GithubID,
-		Username: dbUser.Username,
-		Email:    dbUser.Email,
-		Token:    dbUser.Token,
+		ID:        dbUser.ID,
+		GitHubID:  dbUser.GithubID,
+		AvatarURL: dbUser.AvatarUrl,
+		Username:  dbUser.Username,
+		Email:     dbUser.Email,
+		Token:     dbUser.Token,
 	}
 
 	return user, nil
@@ -105,11 +110,12 @@ func (oauth *OAuthService) GetUserByGitHubID(ctx context.Context, githubID int64
 	}
 
 	user := &model.User{
-		ID:       dbUser.ID,
-		GitHubID: dbUser.GithubID,
-		Username: dbUser.Username,
-		Email:    dbUser.Email,
-		Token:    dbUser.Token,
+		ID:        dbUser.ID,
+		GitHubID:  dbUser.GithubID,
+		AvatarURL: dbUser.AvatarUrl,
+		Username:  dbUser.Username,
+		Email:     dbUser.Email,
+		Token:     dbUser.Token,
 	}
 
 	return user, nil
@@ -117,10 +123,11 @@ func (oauth *OAuthService) GetUserByGitHubID(ctx context.Context, githubID int64
 
 func (oauth *OAuthService) CreateUser(ctx context.Context, user *model.User) error {
 	createdUser, err := oauth.oAuthRepository.CreateUser(ctx, db.CreateUserParams{
-		GithubID: user.GitHubID,
-		Username: user.Username,
-		Email:    user.Email,
-		Token:    user.Token,
+		GithubID:  user.GitHubID,
+		AvatarUrl: user.AvatarURL,
+		Username:  user.Username,
+		Email:     user.Email,
+		Token:     user.Token,
 	})
 	if err != nil {
 		return err

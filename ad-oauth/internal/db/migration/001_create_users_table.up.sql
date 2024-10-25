@@ -2,9 +2,10 @@ SET TIMEZONE = 'UTC';
 
 -- creating the users table
 CREATE TABLE IF NOT EXISTS users (
-                                     id UUID PRIMARY KEY,
+                                     id UUID PRIMARY KEY DEFAULT (uuid_generate_v4()),
                                      github_id BIGINT UNIQUE NOT NULL,
                                      username VARCHAR(255) NOT NULL,
+                                     avatar_url VARCHAR(255),
                                      email VARCHAR(255),
                                      token VARCHAR(255) NOT NULL,
                                      created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,

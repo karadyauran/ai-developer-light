@@ -7,9 +7,9 @@ import (
 )
 
 type Config struct {
-	EnvType      string `mapstructure:"ENV_TYPE"`
-	DBSource     string `mapstructure:"DB_SOURCE"`
-	GrpcAuthPort string `mapstructure:"GPRC_AUTH_PORT"`
+	EnvType       string `mapstructure:"ENV_TYPE"`
+	DBSource      string `mapstructure:"DB_SOURCE"`
+	GrpcOAuthPort string `mapstructure:"GPRC_OAUTH_PORT"`
 
 	GitHubClientID     string `mapstructure:"GITHUB_CLIENT_ID"`
 	GitHubClientSecret string `mapstructure:"GITHUB_CLIENT_SECRET"`

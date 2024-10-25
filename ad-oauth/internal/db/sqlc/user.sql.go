@@ -12,29 +12,43 @@ import (
 )
 
 const createUser = `-- name: CreateUser :one
-INSERT INTO users (github_id, username, email, token)
-VALUES ($1, $2, $3, $4)
-RETURNING id, github_id, username, email, token, created_at, updated_at
+INSERT INTO users (github_id, avatar_url, username, email, token)
+VALUES ($1, $2, $3, $4, $5)
+RETURNING id, github_id, avatar_url, username, email, token, created_at, updated_at
 `
 
 type CreateUserParams struct {
-	GithubID int64       `json:"github_id"`
-	Username string      `json:"username"`
-	Email    pgtype.Text `json:"email"`
-	Token    string      `json:"token"`
+	GithubID  int64       `json:"github_id"`
+	AvatarUrl pgtype.Text `json:"avatar_url"`
+	Username  string      `json:"username"`
+	Email     pgtype.Text `json:"email"`
+	Token     string      `json:"token"`
 }
 
-func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
+type CreateUserRow struct {
+	ID        pgtype.UUID        `json:"id"`
+	GithubID  int64              `json:"github_id"`
+	AvatarUrl pgtype.Text        `json:"avatar_url"`
+	Username  string             `json:"username"`
+	Email     pgtype.Text        `json:"email"`
+	Token     string             `json:"token"`
+	CreatedAt pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
+}
+
+func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (CreateUserRow, error) {
 	row := q.db.QueryRow(ctx, createUser,
 		arg.GithubID,
+		arg.AvatarUrl,
 		arg.Username,
 		arg.Email,
 		arg.Token,
 	)
-	var i User
+	var i CreateUserRow
 	err := row.Scan(
 		&i.ID,
 		&i.GithubID,
+		&i.AvatarUrl,
 		&i.Username,
 		&i.Email,
 		&i.Token,
@@ -55,17 +69,29 @@ func (q *Queries) DeleteUser(ctx context.Context, id pgtype.UUID) error {
 }
 
 const getUserByGitHubID = `-- name: GetUserByGitHubID :one
-SELECT id, github_id, username, email, token, created_at, updated_at
+SELECT id, github_id, avatar_url, username, email, token, created_at, updated_at
 FROM users
 WHERE github_id = $1
 `
 
-func (q *Queries) GetUserByGitHubID(ctx context.Context, githubID int64) (User, error) {
+type GetUserByGitHubIDRow struct {
+	ID        pgtype.UUID        `json:"id"`
+	GithubID  int64              `json:"github_id"`
+	AvatarUrl pgtype.Text        `json:"avatar_url"`
+	Username  string             `json:"username"`
+	Email     pgtype.Text        `json:"email"`
+	Token     string             `json:"token"`
+	CreatedAt pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
+}
+
+func (q *Queries) GetUserByGitHubID(ctx context.Context, githubID int64) (GetUserByGitHubIDRow, error) {
 	row := q.db.QueryRow(ctx, getUserByGitHubID, githubID)
-	var i User
+	var i GetUserByGitHubIDRow
 	err := row.Scan(
 		&i.ID,
 		&i.GithubID,
+		&i.AvatarUrl,
 		&i.Username,
 		&i.Email,
 		&i.Token,
@@ -76,17 +102,29 @@ func (q *Queries) GetUserByGitHubID(ctx context.Context, githubID int64) (User, 
 }
 
 const getUserByID = `-- name: GetUserByID :one
-SELECT id, github_id, username, email, token, created_at, updated_at
+SELECT id, github_id, avatar_url, username, email, token, created_at, updated_at
 FROM users
 WHERE id = $1
 `
 
-func (q *Queries) GetUserByID(ctx context.Context, id pgtype.UUID) (User, error) {
+type GetUserByIDRow struct {
+	ID        pgtype.UUID        `json:"id"`
+	GithubID  int64              `json:"github_id"`
+	AvatarUrl pgtype.Text        `json:"avatar_url"`
+	Username  string             `json:"username"`
+	Email     pgtype.Text        `json:"email"`
+	Token     string             `json:"token"`
+	CreatedAt pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
+}
+
+func (q *Queries) GetUserByID(ctx context.Context, id pgtype.UUID) (GetUserByIDRow, error) {
 	row := q.db.QueryRow(ctx, getUserByID, id)
-	var i User
+	var i GetUserByIDRow
 	err := row.Scan(
 		&i.ID,
 		&i.GithubID,
+		&i.AvatarUrl,
 		&i.Username,
 		&i.Email,
 		&i.Token,

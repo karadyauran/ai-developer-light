@@ -1,5 +1,5 @@
 start: ## Run the project
-	go run cmd/general/main.go
+	go run cmd/main/main.go
 
 test: ## Run all tests
 	go test ./...

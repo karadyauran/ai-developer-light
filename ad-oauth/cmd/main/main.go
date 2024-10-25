@@ -28,9 +28,9 @@ func main() {
 	}
 	defer newPool.Close()
 
-	lis, err := net.Listen("tcp", ":"+newConfig.GrpcAuthPort)
+	lis, err := net.Listen("tcp", ":"+newConfig.GrpcOAuthPort)
 	if err != nil {
-		log.Fatalf("failed to listen on gRPC port %s: %v", newConfig.GrpcAuthPort, err)
+		log.Fatalf("failed to listen on gRPC port %s: %v", newConfig.GrpcOAuthPort, err)
 	}
 
 	grpcServer := grpc.NewServer()
@@ -40,10 +40,10 @@ func main() {
 	newService := service.NewService(newPool, newGithubOAuth)
 	newServer := server.NewAuthServer(newService)
 
-	generated.RegisterUserServiceServer(grpcServer, newServer)
+	generated.RegisterOAuthServiceServer(grpcServer, newServer)
 
 	// Start serving gRPC
-	log.Printf("gRPC server listening on port %s", newConfig.GrpcAuthPort)
+	log.Printf("gRPC server listening on port %s", newConfig.GrpcOAuthPort)
 	if err := grpcServer.Serve(lis); err != nil {
 		log.Fatalf("failed to serve gRPC: %v", err)
 	}

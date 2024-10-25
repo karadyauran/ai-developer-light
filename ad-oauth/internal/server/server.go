@@ -32,15 +32,19 @@ func (s *AuthServer) Authenticate(ctx context.Context, request *generated.Authen
 		return nil, err
 	}
 
+	avatarValue := TextToStringValue(authenticate.AvatarURL)
 	emailValue := TextToStringValue(authenticate.Email)
 
 	response := &generated.UserResponse{
 		Id:       idStr,
 		GithubId: authenticate.GitHubID,
+		Avatar:   avatarValue,
 		Username: authenticate.Username,
 		Email:    emailValue,
 		Token:    authenticate.Token,
 	}
+
+	fmt.Println(response)
 
 	return response, nil
 }

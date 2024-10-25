@@ -1,15 +1,15 @@
 -- name: CreateUser :one
-INSERT INTO users (github_id, username, email, token)
-VALUES ($1, $2, $3, $4)
-RETURNING id, github_id, username, email, token, created_at, updated_at;
+INSERT INTO users (github_id, avatar_url, username, email, token)
+VALUES ($1, $2, $3, $4, $5)
+RETURNING id, github_id, avatar_url, username, email, token, created_at, updated_at;
 
 -- name: GetUserByID :one
-SELECT id, github_id, username, email, token, created_at, updated_at
+SELECT id, github_id, avatar_url, username, email, token, created_at, updated_at
 FROM users
 WHERE id = $1;
 
 -- name: GetUserByGitHubID :one
-SELECT id, github_id, username, email, token, created_at, updated_at
+SELECT id, github_id, avatar_url, username, email, token, created_at, updated_at
 FROM users
 WHERE github_id = $1;
 

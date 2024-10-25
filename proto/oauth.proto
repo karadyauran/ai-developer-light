@@ -16,9 +16,10 @@ service OAuthService {
 message UserResponse {
   string id = 1;
   int64 github_id = 2;
-  string username = 3;
-  google.protobuf.StringValue email = 4;
-  string token = 5;
+  google.protobuf.StringValue avatar = 3;
+  string username = 4;
+  google.protobuf.StringValue email = 5;
+  string token = 6;
 }
 
 message AuthenticateUserRequest {

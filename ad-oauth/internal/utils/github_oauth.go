@@ -20,9 +20,10 @@ type Token struct {
 }
 
 type GitHubUser struct {
-	ID       int64  `json:"id"`
-	Username string `json:"login"`
-	Email    string `json:"email"`
+	ID        int64  `json:"id"`
+	Username  string `json:"login"`
+	Email     string `json:"email"`
+	AvatarURL string `json:"avatar_url"`
 }
 
 func NewGitHubOAuth(cfg *config.Config) *GitHubOAuth {
