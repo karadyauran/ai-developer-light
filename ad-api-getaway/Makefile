@@ -8,7 +8,7 @@ install: ## Install dependencies
 	go mod tidy
 
 swag: ##  Generate swagger specification
-	swag init -g cmd/general/main.go
+	swag init -g cmd/main/main.go
 
 proto-generate-oauth-service:
 	protoc --proto_path=../proto --go_out=./internal --go-grpc_out=./internal ../proto/oauth.proto

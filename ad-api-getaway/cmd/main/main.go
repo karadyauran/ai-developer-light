@@ -17,6 +17,15 @@ import (
 	"time"
 )
 
+// @title           AI Dev entry point
+// @version         1.0
+// @description     This API handles all requests from the users to microservices
+
+// @license.name    MIT
+// @license.url     https://github.com/karadyauran/ai-developer-light/blob/main/LICENSE
+
+// @host            localhost:8000
+// @BasePath        /api/v1
 func main() {
 	newConfig, err := config.LoadConfig("./")
 	if err != nil {
