@@ -120,8 +120,6 @@ var SwaggerInfo = &swag.Spec{
 	Description:      "This API handles all requests from the users to microservices",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
-	LeftDelim:        "{{",
-	RightDelim:       "}}",
 }
 
 func init() {
