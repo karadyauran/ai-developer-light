@@ -1,0 +1,70 @@
+basePath: /api/v1
+definitions:
+  model.AuthenticateUserRequestSwagger:
+    properties:
+      code:
+        type: string
+    required:
+    - code
+    type: object
+  model.UserResponseSwagger:
+    properties:
+      avatar_url:
+        type: string
+      email:
+        type: string
+      github_id:
+        type: integer
+      id:
+        type: string
+      token:
+        type: string
+      username:
+        type: string
+    type: object
+host: localhost:8000
+info:
+  contact: {}
+  description: This API handles all requests from the users to microservices
+  license:
+    name: MIT
+    url: https://github.com/karadyauran/ai-developer-light/blob/main/LICENSE
+  title: AI Dev entry point
+  version: "1.0"
+paths:
+  /api/v1/oauth/github/authenticate:
+    post:
+      consumes:
+      - application/json
+      description: This endpoint accepts a GitHub authorization code and returns the
+        authenticated user details.
+      parameters:
+      - description: GitHub Authorization Code
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.AuthenticateUserRequestSwagger'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User response with avatar
+          schema:
+            $ref: '#/definitions/model.UserResponseSwagger'
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Authenticate user through GitHub OAuth
+      tags:
+      - OAuth
+swagger: "2.0"

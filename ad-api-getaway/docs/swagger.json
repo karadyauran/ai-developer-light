@@ -1,0 +1,105 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "This API handles all requests from the users to microservices",
+        "title": "AI Dev entry point",
+        "contact": {},
+        "license": {
+            "name": "MIT",
+            "url": "https://github.com/karadyauran/ai-developer-light/blob/main/LICENSE"
+        },
+        "version": "1.0"
+    },
+    "host": "localhost:8000",
+    "basePath": "/api/v1",
+    "paths": {
+        "/api/v1/oauth/github/authenticate": {
+            "post": {
+                "description": "This endpoint accepts a GitHub authorization code and returns the authenticated user details.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "OAuth"
+                ],
+                "summary": "Authenticate user through GitHub OAuth",
+                "parameters": [
+                    {
+                        "description": "GitHub Authorization Code",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.AuthenticateUserRequestSwagger"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "User response with avatar",
+                        "schema": {
+                            "$ref": "#/definitions/model.UserResponseSwagger"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "model.AuthenticateUserRequestSwagger": {
+            "type": "object",
+            "required": [
+                "code"
+            ],
+            "properties": {
+                "code": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.UserResponseSwagger": {
+            "type": "object",
+            "properties": {
+                "avatar_url": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "github_id": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "token": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}
