@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package pb;
+
+option go_package = "./generated";
+
+service KafkaService {
+  rpc KafkaSend(Request) returns (Response);
+}
+
+message Request {
+  string id = 1;
+  Params params = 2;
+  string created_at = 3;
+}
+
+message Params {
+  string project_type = 1;
+  string language = 2;
+  string generation_type = 3; // random idea or custom
+  string idea = 4;            // if needed
+  string token = 5;           // user github token
+}
+
+message Response {
+  string response = 1;
+}
