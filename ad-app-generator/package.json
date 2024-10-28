@@ -1,5 +1,5 @@
 {
-  "name": "ad-oauth",
+  "name": "ad-app-generator",
   "version": "0.1.0",
   "type": "module",
   "scripts": {
