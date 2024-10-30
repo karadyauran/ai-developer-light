@@ -12,9 +12,11 @@ import (
 )
 
 type Router struct {
-	Gin         *gin.Engine
-	config      *config.Config
-	oAuthRouter *oAuthRouter
+	Gin    *gin.Engine
+	config *config.Config
+
+	oAuthRouter        *oAuthRouter
+	appGeneratorRouter *appGeneratorRouter
 }
 
 func NewRouter(config *config.Config, controller *controller.Controller) *Router {
@@ -34,9 +36,11 @@ func NewRouter(config *config.Config, controller *controller.Controller) *Router
 	})
 
 	return &Router{
-		Gin:         ginRouter,
-		config:      config,
-		oAuthRouter: newOAuthRouter(controller.OAuthController, config),
+		Gin:    ginRouter,
+		config: config,
+
+		oAuthRouter:        newOAuthRouter(controller.OAuthController, config),
+		appGeneratorRouter: newAppGeneratorRouter(controller.AppGeneratorController, config),
 	}
 }
 
@@ -44,6 +48,7 @@ func (r *Router) SetRoutes() {
 	api := r.Gin.Group("/api/v1")
 
 	r.oAuthRouter.setOAuthRoutes(api)
+	r.appGeneratorRouter.setAppGeneratorRouter(api)
 
 	if r.config.EnvType != "prod" {
 		// r.devRouter.setDevRoutes(api)

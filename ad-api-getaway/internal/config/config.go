@@ -12,6 +12,7 @@ type Config struct {
 	DBSource   string `mapstructure:"DB_SOURCE"`
 
 	GrpcOAuthPort string `mapstructure:"GPRC_OAUTH_PORT"`
+	GrpcKafka     string `mapstructure:"GPRC_KAFKA_PORT"`
 	WebappBaseUrl string `mapstructure:"WEBAPP_BASE_URL"`
 }
 

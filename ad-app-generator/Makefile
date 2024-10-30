@@ -14,8 +14,8 @@ install: ## Install dependencies
 db-schema: ## Generate db schema
 	sqlc generate
 
-proto-generate:
-	protoc --proto_path=../proto --go_out=./internal --go-grpc_out=./internal ../proto/oauth.proto
+proto-generate-kafka-service:
+	protoc --proto_path=../proto --go_out=./internal --go-grpc_out=./internal ../proto/kafka.proto
 
 help: ## Display help message
 	@echo "Available targets:"

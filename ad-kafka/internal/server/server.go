@@ -18,9 +18,10 @@ func NewKafkaServer(kafkaService *service.Service) *KafkaServer {
 	}
 }
 
-func (ks *KafkaServer) KafkaSend(ctx context.Context, request *generated.Request) (*generated.Response, error) {
+func (ks *KafkaServer) KafkaSend(ctx context.Context, request *generated.KafkaRequest) (*generated.KafkaResponse, error) {
 	sendMessageRequest := model.Request{
-		ID: request.Id,
+		ID:    request.Id,
+		Topic: request.Topic,
 		Params: model.Params{
 			ProjectType:    request.Params.ProjectType,
 			Language:       request.Params.Language,
@@ -33,10 +34,10 @@ func (ks *KafkaServer) KafkaSend(ctx context.Context, request *generated.Request
 
 	err := ks.kafkaService.Send(sendMessageRequest)
 	if err != nil {
-		return &generated.Response{
+		return &generated.KafkaResponse{
 			Response: "Error creating message",
 		}, err
 	}
 
-	return &generated.Response{Response: "Request sent successfully"}, nil
+	return &generated.KafkaResponse{Response: "Request sent successfully"}, nil
 }

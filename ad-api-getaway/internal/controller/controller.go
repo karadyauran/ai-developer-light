@@ -3,11 +3,13 @@ package controller
 import "karadyaur.io/ai-dev-light/ad-api-getaway/internal/generated"
 
 type Controller struct {
-	OAuthController *OAuthController
+	OAuthController        *OAuthController
+	AppGeneratorController *AppGeneratorController
 }
 
-func NewController(authClient generated.OAuthServiceClient) *Controller {
+func NewController(authClient generated.OAuthServiceClient, kafkaClient generated.KafkaServiceClient) *Controller {
 	return &Controller{
-		OAuthController: NewAuthController(authClient),
+		OAuthController:        NewAuthController(authClient),
+		AppGeneratorController: NewAppGeneratorController(kafkaClient),
 	}
 }

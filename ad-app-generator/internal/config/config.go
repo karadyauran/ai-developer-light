@@ -7,9 +7,12 @@ import (
 )
 
 type Config struct {
-	EnvType             string `mapstructure:"ENV_TYPE"`
-	DBSource            string `mapstructure:"DB_SOURCE"`
-	GrpcAIGeneratorPort string `mapstructure:"GPRC_API_GENERATOR_PORT"`
+	EnvType  string `mapstructure:"ENV_TYPE"`
+	DBSource string `mapstructure:"DB_SOURCE"`
+
+	KafkaServer string `mapstructure:"KAFKA_SERVER"`
+	KafkaTopic  string `mapstructure:"KAFKA_TOPIC"`
+	GroupID     string `mapstructure:"GROUP_ID"`
 
 	OpenAIAPI string `mapstructure:"OPENAI_API_KEY"`
 }

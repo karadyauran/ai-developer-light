@@ -33,14 +33,21 @@ func main() {
 		os.Exit(1)
 	}
 
-	conn, err := grpc.NewClient("localhost"+":"+newConfig.GrpcOAuthPort, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	connOAuth, err := grpc.NewClient("localhost"+":"+newConfig.GrpcOAuthPort, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Fatalf("failed to connect to Auth Service: %v", err)
 	}
-	defer conn.Close()
+	defer connOAuth.Close()
+	oAuthServiceClient := generated.NewOAuthServiceClient(connOAuth)
 
-	oAuthServiceClient := generated.NewOAuthServiceClient(conn)
-	newController := controller.NewController(oAuthServiceClient)
+	connKafka, err := grpc.NewClient("localhost"+":"+newConfig.GrpcKafka, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		log.Fatalf("failed to connect to Kafka Service: %v", err)
+	}
+	defer connOAuth.Close()
+	kafkaServiceClient := generated.NewKafkaServiceClient(connKafka)
+
+	newController := controller.NewController(oAuthServiceClient, kafkaServiceClient)
 
 	newRouter := routers.NewRouter(&newConfig, newController)
 	newRouter.SetRoutes()

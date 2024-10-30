@@ -5,16 +5,17 @@ package pb;
 option go_package = "./generated";
 
 service KafkaService {
-  rpc KafkaSend(Request) returns (Response);
+  rpc KafkaSend(KafkaRequest) returns (KafkaResponse);
 }
 
-message Request {
+message KafkaRequest {
   string id = 1;
-  Params params = 2;
-  string created_at = 3;
+  string topic = 2;
+  KafkaParams params = 3;
+  string created_at = 4;
 }
 
-message Params {
+message KafkaParams {
   string project_type = 1;
   string language = 2;
   string generation_type = 3; // random idea or custom
@@ -22,6 +23,6 @@ message Params {
   string token = 5;           // user github token
 }
 
-message Response {
+message KafkaResponse {
   string response = 1;
 }
