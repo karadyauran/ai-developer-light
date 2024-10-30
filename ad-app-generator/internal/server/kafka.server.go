@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"karadyaur.io/ai-dev-light/ad-app-generator/internal/generated"
-	"karadyaur.io/ai-dev-light/ad-app-generator/internal/model"
 	"log"
 	"os"
 	"os/signal"
@@ -41,60 +40,45 @@ func NewKafkaServer(cfg *config.Config, dockerService *service.DockerService) *K
 func (c *KafkaServer) Start() error {
 	defer c.consumer.Close()
 
-	if err := c.consumer.Subscribe("app_generator", nil); err != nil {
+	if err := c.consumer.Subscribe(c.config.KafkaTopic, nil); err != nil {
 		return fmt.Errorf("failed to subscribe to Kafka topic: %w", err)
 	}
 
 	signals := make(chan os.Signal, 1)
 	signal.Notify(signals, syscall.SIGINT, syscall.SIGTERM)
 
-	for {
-		select {
-		default:
-			msg, err := c.consumer.ReadMessage(-1)
+	run := true
 
+	for run {
+		select {
+		case sig := <-signals:
+			fmt.Printf("Signal reached %v: finish work\n", sig)
+			run = false
+		default:
+			msg, err := c.consumer.ReadMessage(100)
 			if err != nil {
-				log.Fatal("Error received from Kafka server: ", err)
-				return err
+				if kafkaErr, ok := err.(kafka.Error); ok && kafkaErr.Code() == kafka.ErrTimedOut {
+					continue
+				}
+				log.Printf("Error reading: %v", err)
+				continue
 			}
 
 			var kafkareq generated.KafkaRequest
 			if err := json.Unmarshal(msg.Value, &kafkareq); err != nil {
-				log.Fatalf("Error unmarshalling Kafka message: %v", err)
-				return err
+				log.Printf("Error marshaling: %v", err)
+				continue
 			}
 
-			dockerContainer := model.DockerContainer{
-				Hostname: kafkareq.Id,
-				Image:    "ubuntu",
-				Files: []model.File{
-					{
-						Filename: "internal/scripts/1-init.sh",
-					},
-					{
-						Filename: "internal/scripts/2-setup.sh",
-					},
-					{
-						Filename: "internal/scripts/3-generate_file.sh",
-					},
-					{
-						Filename: "internal/scripts/4-cleanup.sh",
-					},
-				},
-				Commands: []string{
-					"chmod +x /app/1-init.sh",
-					"chmod +x /app/2-setup.sh",
-					"chmod +x /app/3-generate_file.sh",
-					"chmod +x /app/4-cleanup.sh",
-				},
-			}
-
-			run, err := c.dockerService.CopyAndRun(dockerContainer)
+			containerID, err := c.dockerService.StartContainer("internal/secret/Dockerfile")
 			if err != nil {
-				return err
+				log.Printf("Faild to start container: %v", err)
+				continue
 			}
 
-			log.Println("Container ID" + run)
+			log.Printf("Container started with ID: %s", containerID)
 		}
 	}
+
+	return nil
 }
