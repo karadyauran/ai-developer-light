@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package pb;
+
+option go_package = "./generated";
+
+
+import "google/protobuf/wrappers.proto";
+
+service OAuthService {
+  rpc Authenticate(AuthenticateUserRequest) returns (UserResponse);
+  rpc GetUserByID(GetUserByIDRequest) returns (UserResponse);
+  rpc GetUserByGitHubID(GetUserByGitHubIDRequest) returns (UserResponse);
+}
+
+message UserResponse {
+  string id = 1;
+  int64 github_id = 2;
+  google.protobuf.StringValue avatar = 3;
+  string username = 4;
+  google.protobuf.StringValue email = 5;
+  string token = 6;
+}
+
+message AuthenticateUserRequest {
+  string code = 1;
+}
+
+message GetUserByIDRequest {
+  string id = 1;
+}
+
+message GetUserByGitHubIDRequest {
+  string id = 1;
+}

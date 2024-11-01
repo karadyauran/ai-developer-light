@@ -1,10 +1,15 @@
 {
   "name": "ai-developer-light",
-  "version": "0.2.0-alpha",
+  "version": "0.1.0",
   "scripts": {
-    
+    "serve": "pnpm --stream --recursive --workspace-concurrency 100 serve",
+    "start": "pnpm  --stream --recursive --workspace-concurrency 100 start",
+    "test:integration": "pnpm --stream --recursive --workspace-concurrency 1 test:integration"
   },
   "keywords": [],
-  "author": "karadyauran",
-  "license": "ISC"
+  "author": "karadiauran",
+  "license": "MIT",
+  "dependencies": {
+    "nodemon": "^3.1.7"
+  }
 }
